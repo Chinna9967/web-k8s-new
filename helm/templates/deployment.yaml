@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: roboshop
+  labels: # deployment labels
+    app: web
+    tier: web
+    project: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:  # these labels shpuld match with pod labels
+      app: web
+      tier: web
+      project: roboshop
+  template:
+    metadata:
+      labels:
+        app: web
+        tier: web
+        project: roboshop
+    spec:
+      volumes:
+      - name: nginx-conf
+        configMap: 
+          name: nginx
+          items:
+          - key: nginx.conf 
+            path: nginx.conf 
+      containers:
+      - name: web
+        image: "chinna9967/web:{{ .Vales.deployment.imageVersion }}"
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "68Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+        volumeMounts:
+        - name: nginx-conf # name of the volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf 
+          readOnly: true
